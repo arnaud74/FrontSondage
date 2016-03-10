@@ -25,27 +25,11 @@ var $ = require('jquery');
 var Index = React.createClass({
 
     getInitialState: function () {
-        return {
-            danger: [],
-            markers: []
-        };
-    },
-
-    componentDidMount: function () {
-        this.refreshList();
-    },
-
-    refreshList: function () {
-        $.get("http://149.202.141.134:3000/api/danger", function (result) {
-            this.setState({
-                //danger: result
-            });
-        }.bind(this));
+        return {questions:[],key:1};
     },
 
     render: function () {
-
-        var key = 0;
+        var _this = this;
 
         var styles = {
             "addButton": {
@@ -61,15 +45,6 @@ var Index = React.createClass({
         ];
 
         return <div>
-
-
-            {
-                this.state.danger.map(function (tile) {
-                    key += 1;
-                    return <DangerCard key={key} danger={tile._source}/>
-                })
-            }
-
             <RaisedButton label="Sondage" onTouchTap={this._handleChangePage}/>
             <RaisedButton label="Creer sondage" onTouchTap={this._handleCreerSondage}/>
             <RaisedButton label="Creer user" onTouchTap={this._handleAddButtonPressed}/>
@@ -120,21 +95,24 @@ var Index = React.createClass({
                                 onChange={this._handleContenuChanged}
                             /></TableRowColumn>
                         </TableRow>
+                        {
+                            this.state.questions.map(function(question){
+                                return <TableRow key={question.key}>
+                                    <TableRowColumn><Checkbox
 
-                        <TableRow>
-                            <TableRowColumn><Checkbox
-
-                            />
-                            </TableRowColumn>
-                            <TableRowColumn><TextField
-                                hintText="Contenu"
-                                ref="contenu"
-                                onChange={this._handleContenuChanged}
-                            /></TableRowColumn>
-                        </TableRow>
+                                    />
+                                    </TableRowColumn>
+                                    <TableRowColumn><TextField
+                                        hintText="Contenu"
+                                        ref="contenu"
+                                        onChange={_this._handleContenuChanged}
+                                    /></TableRowColumn>
+                                </TableRow>
+                            })
+                        }
                     </TableBody>
                 </Table>
-                <FloatingActionButton style={styles.addButton} onChange={this._addRow}>
+                <FloatingActionButton style={styles.addButton} onTouchTap={this._addRow}>
                     <ContentAdd />
                 </FloatingActionButton>
                 <br/>
@@ -186,18 +164,11 @@ var Index = React.createClass({
     },
 
     _addRow: function (event) {
-        console.log("plus");
-        this.ref.tablebodyreponse.append(<TableRow>
-            <TableRowColumn><Checkbox
-
-            />
-            </TableRowColumn>
-            <TableRowColumn><TextField
-                hintText="Contenu"
-                ref="contenu"
-                onChange={this._handleContenuChanged}
-            /></TableRowColumn>
-        </TableRow>);
+        var questions = this.state.questions;
+        var key = this.state.key;
+        questions.push({key:key});
+        this.setState({key:key+1});
+        this.setState({questions:questions});
     },
 
     _handleCreerSondage: function (event) {
